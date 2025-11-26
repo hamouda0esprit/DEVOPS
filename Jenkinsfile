@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'    // Nom configuré dans Jenkins
+        maven 'Maven3'
         jdk 'JDK17'
     }
 
     environment {
-        IMAGE_NAME = 'hamouda/student-management:latest'  // Nom de ton image Docker
+        PATH = "/usr/local/bin:$PATH"  // Ajoute Docker au PATH
     }
 
     stages {
@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean compile -DskipTests'
+                sh 'mvn clean compile'
             }
         }
 
@@ -32,32 +32,26 @@ pipeline {
 
         stage('Package') {
             steps {
-                sh 'mvn package -DskipTests'
+                sh 'mvn package'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t hamouda/student-management:latest .'
             }
         }
 
         stage('Docker Run') {
             steps {
-                sh 'docker run -d -p 8080:8080 $IMAGE_NAME'
+                sh 'docker run -d -p 8080:8080 hamouda/student-management:latest'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Application déployée via Docker'
+                echo 'Déploiement terminé.'
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline terminée.'
         }
     }
 }
