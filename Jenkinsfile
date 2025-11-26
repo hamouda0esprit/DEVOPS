@@ -4,7 +4,7 @@ agent any
 stages {
     stage('Checkout') {
         steps {
-            git branch: 'main', url: 'https://github.com/tonUser/tonProjet.git'
+            git branch: 'master', url: 'https://github.com/hamouda0esprit/DEVOPS.git/'
         }
     }
 
