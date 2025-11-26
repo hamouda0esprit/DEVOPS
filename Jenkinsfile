@@ -1,22 +1,34 @@
 pipeline {
 agent any
 
+tools {
+    maven 'MAVEN'   // Nom que tu as donné dans Jenkins
+    jdk 'JDK17'     // Exemple si tu utilises Java 17
+}
+
 stages {
+
     stage('Checkout') {
         steps {
-            git branch: 'master', url: 'https://github.com/hamouda0esprit/DEVOPS.git/'
+            git branch: 'master', url: 'https://github.com/hamouda0esprit/DEVOPS.git'
         }
     }
 
     stage('Build') {
         steps {
-            echo 'Compilation en cours...'
+            sh 'mvn clean compile'
         }
     }
 
     stage('Tests') {
         steps {
-            echo 'Exécution des tests...'
+            sh 'mvn test'
+        }
+    }
+
+    stage('Package') {
+        steps {
+            sh 'mvn package'
         }
     }
 
