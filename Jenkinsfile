@@ -7,7 +7,9 @@ pipeline {
     }
 
     environment {
-        PATH = "/usr/local/bin:$PATH"  // Ajoute Docker au PATH
+        PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
+        IMAGE_NAME = "hamouda/student-management"
+        CONTAINER_NAME = "student-management-app"
     }
 
     stages {
@@ -15,6 +17,20 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/hamouda0esprit/DEVOPS.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            environment {
+                SONAR_TOKEN = credentials('squ_457d32ccd17e206c3b2ef68e2bfc1a0e4801759f')  
+            }
+            steps {
+                sh '''
+                mvn sonar:sonar \
+                    -Dsonar.projectKey=student-management \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=$SONAR_TOKEN
+                '''
             }
         }
 
@@ -32,19 +48,27 @@ pipeline {
 
         stage('Package') {
             steps {
-                sh 'mvn package'
+                sh 'mvn package -DskipTests'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t hamouda/student-management:latest .'
+                sh '''
+                echo "[INFO] Building Docker image..."
+                docker build -t $IMAGE_NAME:latest .
+                '''
             }
         }
 
         stage('Docker Run') {
             steps {
-                sh 'docker run -d -p 8080:8080 hamouda/student-management:latest'
+                sh '''
+                docker stop $CONTAINER_NAME || true
+                docker rm   $CONTAINER_NAME || true
+
+                docker run -d --name $CONTAINER_NAME -p 8080:8080 $IMAGE_NAME:latest
+                '''
             }
         }
 
