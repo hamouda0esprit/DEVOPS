@@ -20,7 +20,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') { // Nom configuré dans Jenkins
+                withSonarQubeEnv('sonar') { // Nom configuré dans Jenkins
                     sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN'
                 }
             }
